@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: The good fixture passes (exit 0)
+        run: node check-mobile.mjs fixtures/good
+      - name: The bad fixture is rejected (exit 1, not 2)
+        run: |
+          set +e
+          node check-mobile.mjs fixtures/bad
+          code=$?
+          set -e
+          echo "exit code: $code"
+          test "$code" -eq 1
+      - name: A missing folder is a collection failure (exit 2)
+        run: |
+          set +e
+          node check-mobile.mjs fixtures/does-not-exist
+          code=$?
+          set -e
+          echo "exit code: $code"
+          test "$code" -eq 2
+      - name: An off-canon font family is rejected when a canon is set (exit 1)
+        run: |
+          set +e
+          node check-mobile.mjs fixtures/good --font-canon=Nonexistent
+          code=$?
+          set -e
+          echo "exit code: $code"
+          test "$code" -eq 1
+      - name: A missing font stylesheet is rejected when one is required (exit 1)
+        run: |
+          set +e
+          node check-mobile.mjs fixtures/good --fonts-css=/fonts.css
+          code=$?
+          set -e
+          echo "exit code: $code"
+          test "$code" -eq 1

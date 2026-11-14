@@ -1,0 +1,20 @@
+{
+  "name": "mobile-render-gate",
+  "version": "0.1.0",
+  "description": "Renders every published page at 390x844 and fails the build on mobile defects",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "mobile-render-gate": "check-mobile.mjs"
+  },
+  "scripts": {
+    "check": "node check-mobile.mjs",
+    "test": "node check-mobile.mjs fixtures/good"
+  },
+  "dependencies": {
+    "playwright-core": "^1.56.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
