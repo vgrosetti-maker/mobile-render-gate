@@ -9,7 +9,7 @@
   },
   "scripts": {
     "check": "node check-mobile.mjs",
-    "test": "node check-mobile.mjs fixtures/good"
+    "test": "node --test test.mjs && node check-mobile.mjs fixtures/good"
   },
   "dependencies": {
     "playwright-core": "^1.56.0"

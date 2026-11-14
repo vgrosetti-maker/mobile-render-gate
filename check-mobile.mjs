@@ -20,7 +20,7 @@
 // browser only collects raw data, so every invariant can have a negative test
 // without a browser.
 
-import { readdirSync, statSync, existsSync, createReadStream, readFileSync } from 'node:fs';
+import { readdirSync, statSync, existsSync, createReadStream, readFileSync, realpathSync } from 'node:fs';
 import { join, resolve, relative, sep, extname, normalize } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createServer } from 'node:http';
@@ -625,8 +625,23 @@ const MIME_TYPES = {
  * measured WITHOUT STYLE and reported defects that did not exist. Under
  * http:// the root is the published folder, as on the real host.
  */
+/**
+ * True when `target`, with every symlink resolved, is still `realBase` or lives
+ * under it. The lexical check alone is not enough: a symlink INSIDE the
+ * published folder can point anywhere on the machine.
+ */
+export function insideRoot(realBase, target) {
+  let real;
+  try {
+    real = realpathSync(target);
+  } catch {
+    return false;
+  }
+  return real === realBase || real.startsWith(realBase + sep);
+}
+
 export function startStaticServer(root) {
-  const base = resolve(root);
+  const base = realpathSync(resolve(root));
 
   const server = createServer((req, res) => {
     let urlPath;
@@ -647,6 +662,12 @@ export function startStaticServer(root) {
     }
     if (!existsSync(target) || !statSync(target).isFile()) {
       res.writeHead(404).end('not found');
+      return;
+    }
+    // Same guard again, now on the REAL path: a symlink that resolves outside
+    // the published folder is not part of the site.
+    if (!insideRoot(base, target)) {
+      res.writeHead(403).end('outside root');
       return;
     }
 
@@ -899,9 +920,19 @@ export function listPublishedPages(root, { ignored } = {}) {
     throw collectionFailure(`${root}/ does not exist. Fix: build the site first`);
   }
   const found = [];
+  const realRoot = realpathSync(resolve(root));
   const walk = (dir) => {
     for (const name of readdirSync(dir).sort()) {
       const path = join(dir, name);
+      // A symlink that leaves the published folder is not walked and not
+      // served. It is a collection failure and not a silent skip: the gate
+      // would otherwise report green on pages it never looked at.
+      if (!insideRoot(realRoot, path)) {
+        throw collectionFailure(
+          `${relative(root, path).split(sep).join('/')} resolves outside ${root}/ (symlink): ` +
+            'the gate only checks files inside the published folder',
+        );
+      }
       if (statSync(path).isDirectory()) {
         walk(path);
         continue;
@@ -969,7 +1000,11 @@ export function parseArgs(argv) {
   const parsed = { root: null, help: false, fontsCss: null, fontCanon: null, exemptPrefixes: [] };
   for (const arg of argv) {
     if (arg === '--help' || arg === '-h') parsed.help = true;
-    else if (arg.startsWith('--fonts-css=')) parsed.fontsCss = arg.slice('--fonts-css='.length) || null;
+    else if (arg.startsWith('--fonts-css=')) {
+      parsed.fontsCss = arg.slice('--fonts-css='.length);
+      // An empty value would turn the check off while looking configured.
+      if (!parsed.fontsCss) throw collectionFailure('--fonts-css was given an empty value');
+    }
     else if (arg.startsWith('--font-canon=')) parsed.fontCanon = csv(arg.slice('--font-canon='.length));
     else if (arg.startsWith('--exempt-prefix=')) parsed.exemptPrefixes = csv(arg.slice('--exempt-prefix='.length));
     else if (arg.startsWith('-')) throw collectionFailure(`unknown option ${arg}\n\n${USAGE}`);

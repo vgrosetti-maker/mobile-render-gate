@@ -94,7 +94,9 @@ A file that is a site ownership verification token (one line such as `google-sit
 
 Exit 2 exists so that "I could not check" never looks like "it is fine". The run exits 2 when the folder is missing or has no page, no browser opens, `playwright-core` is not installed, a page answers HTTP 400 or higher, a font or stylesheet fails to load or does not arrive in 15 seconds, or a flag is unknown. A typo in a flag is a collection failure too, because a silently ignored flag would turn a check off.
 
-The CI of this repo runs five cases: exit 0 on the good fixture, exit 1 on the bad one, exit 2 on a missing folder, and exit 1 for each of the two typography flags below.
+A symlink that resolves outside the published folder is also exit 2, and the local server answers 403 for it.
+
+The CI of this repo runs `node --test test.mjs` (flag parsing and the folder boundary, no browser) and five rendered cases: exit 0 on the good fixture, exit 1 on the bad one, exit 2 on a missing folder, and exit 1 for each of the two typography flags below.
 
 ## Optional typography checks
 

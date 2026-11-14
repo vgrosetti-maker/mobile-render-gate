@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
+      - name: Flag parsing and the folder boundary hold without a browser
+        run: node --test test.mjs
       - name: The good fixture passes (exit 0)
         run: node check-mobile.mjs fixtures/good
       - name: The bad fixture is rejected (exit 1, not 2)
