@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bad fixture</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; font-size: 16px; }
+  .fine-print { font-size: 10px; }
+  .wide { width: 600px; background: #ddd; }
+  .tiny-button { display: inline-block; width: 24px; height: 24px; }
+  input { font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>A page that looks fine on a desktop</h1>
+  <p class="fine-print">This paragraph renders at 10px, below the 14px reading floor.</p>
+  <div class="wide">This box is 600px wide in a 390px viewport.</div>
+  <form>
+    <label for="email">Email</label>
+    <input id="email" type="email" name="email">
+  </form>
+  <button class="tiny-button" type="button" aria-label="Close">x</button>
+</body>
+</html>

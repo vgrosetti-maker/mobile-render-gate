@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good fixture</title>
+<style>
+  body { margin: 0; padding: 16px; font-family: system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card { max-width: 100%; background: #eee; padding: 16px; box-sizing: border-box; }
+  label { display: block; margin-top: 16px; }
+  input { font: inherit; font-size: 16px; width: 100%; min-height: 44px; box-sizing: border-box; }
+  button { font: inherit; min-width: 44px; min-height: 44px; padding: 0 16px; margin-top: 16px; }
+  .hero { min-height: 100vh; min-height: 100svh; }
+</style>
+</head>
+<body>
+  <main class="hero">
+    <p class="eyebrow">Fixture</p>
+    <h1>A page that holds up on a phone</h1>
+    <p>Reading text at 16px, with an <a href="#contact">inline link</a> that is exempt from the tap target rule.</p>
+    <div class="card">This box never grows past the viewport.</div>
+    <form id="contact">
+      <label for="email">Email</label>
+      <input id="email" type="email" name="email">
+      <button type="submit">Send</button>
+    </form>
+  </main>
+</body>
+</html>
